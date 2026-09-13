@@ -1,0 +1,60 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: tax-calculator-pipeline
+  description: CI/CD pipeline for Tax Calculator that installs dependencies, executes Jasmine tests, and builds container image.
+spec:
+  params:
+    - name: image-reference
+      type: string
+      description: The fully qualified container image reference (e.g. <IBM_REGION>.icr.io/<REGISTRY_NAMESPACE>/tax-calculator:latest)
+      default: "<IBM_REGION>.icr.io/<REGISTRY_NAMESPACE>/tax-calculator:latest"
+  workspaces:
+    - name: shared-workspace
+      description: Workspace holding the cloned repository files across pipeline tasks
+  tasks:
+    # 1. First Task: npm install
+    - name: npminstall
+      taskRef:
+        name: npm
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    # 2. Second Task: Jasmine unit tests (runs after npminstall)
+    - name: tests
+      runAfter:
+        - npminstall
+      taskRef:
+        name: Jasmine
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    # 3. Third Task: Build container image using Kaniko / Buildah (runs after tests)
+    - name: build
+      runAfter:
+        - tests
+      taskSpec:
+        workspaces:
+          - name: source
+        params:
+          - name: IMAGE
+            type: string
+        steps:
+          - name: build-and-push
+            image: gcr.io/kaniko-project/executor:latest
+            workingDir: $(workspaces.source.path)
+            command:
+              - /kaniko/executor
+            args:
+              - --dockerfile=$(workspaces.source.path)/Dockerfile
+              - --context=$(workspaces.source.path)
+              - --destination=$(params.IMAGE)
+              - --no-push
+      params:
+        - name: IMAGE
+          value: $(params.image-reference)
+      workspaces:
+        - name: source
+          workspace: shared-workspace

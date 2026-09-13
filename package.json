@@ -1,0 +1,22 @@
+{
+  "name": "tax-calculator",
+  "version": "1.0.0",
+  "description": "Beginner-friendly Tax Calculator web application with Jasmine testing, Docker, and Tekton CI/CD",
+  "main": "taxCalculator.js",
+  "scripts": {
+    "test": "jasmine",
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "tax-calculator",
+    "jasmine",
+    "docker",
+    "tekton",
+    "ibm-cloud"
+  ],
+  "author": "Student",
+  "license": "MIT",
+  "devDependencies": {
+    "jasmine": "^5.1.0"
+  }
+}

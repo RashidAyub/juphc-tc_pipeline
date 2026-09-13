@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: tax-calculator-pipelinerun
+  labels:
+    tekton.dev/pipeline: tax-calculator-pipeline
+spec:
+  pipelineRef:
+    name: tax-calculator-pipeline
+  params:
+    - name: image-reference
+      value: "<IBM_REGION>.icr.io/<REGISTRY_NAMESPACE>/tax-calculator:latest"
+  workspaces:
+    - name: shared-workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi

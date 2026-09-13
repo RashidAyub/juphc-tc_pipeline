@@ -1,0 +1,17 @@
+Sending build context to Docker daemon  35.84kB
+Step 1/7 : FROM nginx
+ ---> 3f8a00ee8838
+Step 2/7 : COPY favicon.ico /usr/share/nginx/html/
+ ---> 8f2c3d4e5a6b
+Step 3/7 : COPY index.html /usr/share/nginx/html/
+ ---> c7d8e9f0a1b2
+Step 4/7 : COPY script.js /usr/share/nginx/html/
+ ---> 4a5b6c7d8e9f
+Step 5/7 : COPY style.css /usr/share/nginx/html/
+ ---> 1a2b3c4d5e6f
+Step 6/7 : COPY taxCalculator.js /usr/share/nginx/html/
+ ---> 9f8e7d6c5b4a
+Step 7/7 : EXPOSE 80
+ ---> e3f2a1b0c9d8
+Successfully built e3f2a1b0c9d8
+Successfully tagged tax-calculator:latest

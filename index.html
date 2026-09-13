@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Modern, beginner-friendly Progressive Federal Tax Calculator with live bracket visualization, take-home pay estimate, and deduction optimization.">
+  <meta name="theme-color" content="#0f172a">
+  <title>SmartTax — Federal Progressive Tax Calculator</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-background">
+    <div class="glow-orb glow-top-left"></div>
+    <div class="glow-orb glow-bottom-right"></div>
+  </div>
+
+  <main class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-badge">
+        <span class="badge-dot"></span>
+        <span>2024–2025 Tax Year Ready</span>
+      </div>
+      <h1 class="app-title">Smart<span class="gradient-text">Tax</span> Calculator</h1>
+      <p class="app-subtitle">Interactive progressive federal income tax estimator with live bracket analytics & net paycheck breakdowns.</p>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <div class="calculator-grid">
+      <!-- Left Column: Input Form & Presets -->
+      <section class="card input-card" aria-labelledby="tax-inputs-heading">
+        <div class="card-header">
+          <h2 id="tax-inputs-heading" class="card-title">Tax Information</h2>
+          <button type="button" id="btn-reset" class="btn-ghost" title="Reset to defaults">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Reset
+          </button>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="presets-container">
+          <span class="field-label">Quick Presets:</span>
+          <div class="preset-buttons" role="group" aria-label="Income presets">
+            <button type="button" class="preset-chip" data-income="45000" data-status="single">$45k Entry</button>
+            <button type="button" class="preset-chip active" data-income="85000" data-status="single">$85k Mid</button>
+            <button type="button" class="preset-chip" data-income="150000" data-status="single">$150k Senior</button>
+            <button type="button" class="preset-chip" data-income="250000" data-status="married">$250k Exec</button>
+          </div>
+        </div>
+
+        <form id="tax-form" class="tax-form" novalidate onsubmit="return false;">
+          <!-- Gross Annual Income Input -->
+          <div class="form-group">
+            <label for="gross-income" class="field-label">
+              Annual Gross Income ($)
+              <span class="tooltip" title="Your total yearly earnings before taxes and deductions">ⓘ</span>
+            </label>
+            <div class="input-wrapper">
+              <span class="input-prefix">$</span>
+              <input
+                type="number"
+                id="gross-income"
+                name="grossIncome"
+                min="0"
+                step="500"
+                value="85000"
+                placeholder="e.g. 85000"
+                required
+                aria-describedby="income-hint"
+              >
+            </div>
+            <span id="income-hint" class="field-hint">Enter your pre-tax income or salary.</span>
+          </div>
+
+          <!-- Filing Status Selector -->
+          <div class="form-group">
+            <label for="filing-status" class="field-label">Filing Status</label>
+            <div class="select-wrapper">
+              <select id="filing-status" name="filingStatus">
+                <option value="single" selected>Single</option>
+                <option value="married">Married Filing Jointly</option>
+                <option value="head_of_household">Head of Household</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Deduction Mode -->
+          <div class="form-group">
+            <label class="field-label">Deduction Method</label>
+            <div class="toggle-group" role="radiogroup">
+              <label class="toggle-option active" id="toggle-lbl-standard">
+                <input type="radio" name="deductionMode" id="mode-standard" value="standard" checked>
+                <span>Standard (<span id="standard-deduction-preview">$14,600</span>)</span>
+              </label>
+              <label class="toggle-option" id="toggle-lbl-custom">
+                <input type="radio" name="deductionMode" id="mode-custom" value="custom">
+                <span>Custom Itemized</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Custom Deduction Input (Hidden by default) -->
+          <div class="form-group" id="custom-deduction-group" style="display: none;">
+            <label for="custom-deduction" class="field-label">Itemized Deduction ($)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">$</span>
+              <input
+                type="number"
+                id="custom-deduction"
+                name="customDeduction"
+                min="0"
+                step="100"
+                value="0"
+                placeholder="0"
+              >
+            </div>
+            <span class="field-hint">Medical, mortgage interest, state/local tax, charitable gifts.</span>
+          </div>
+
+          <!-- Live Calculate Button / Status -->
+          <button type="button" id="btn-calculate" class="btn-primary">
+            <span>Calculate Tax</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </form>
+
+        <div id="error-banner" class="alert-banner" role="alert" style="display: none;"></div>
+      </section>
+
+      <!-- Right Column: Results & Analytics -->
+      <section class="card results-card" aria-labelledby="tax-results-heading">
+        <div class="card-header">
+          <h2 id="tax-results-heading" class="card-title">Tax Estimate Summary</h2>
+          <button type="button" id="btn-copy-summary" class="btn-ghost" title="Copy breakdown to clipboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <!-- Metric Highlight Cards -->
+        <div class="metric-grid">
+          <!-- Total Tax -->
+          <div class="metric-item tax-liability">
+            <span class="metric-label">Estimated Federal Tax</span>
+            <span id="metric-total-tax" class="metric-value text-red">$0</span>
+            <span class="metric-sub">Total annual liability</span>
+          </div>
+
+          <!-- Effective Rate -->
+          <div class="metric-item effective-rate">
+            <span class="metric-label">Effective Tax Rate</span>
+            <span id="metric-effective-rate" class="metric-value text-accent">0.0%</span>
+            <span class="metric-sub">Actual % of gross paid</span>
+          </div>
+
+          <!-- Take-Home Pay -->
+          <div class="metric-item take-home">
+            <span class="metric-label">Annual Take-Home Pay</span>
+            <span id="metric-net-income" class="metric-value text-green">$0</span>
+            <span class="metric-sub">Gross minus federal tax</span>
+          </div>
+
+          <!-- Marginal Rate -->
+          <div class="metric-item marginal-bracket">
+            <span class="metric-label">Top Marginal Bracket</span>
+            <span id="metric-marginal-rate" class="metric-value text-yellow">0%</span>
+            <span class="metric-sub">Tax on your next dollar</span>
+          </div>
+        </div>
+
+        <!-- Paycheck Frequencies Breakdown -->
+        <div class="frequency-section">
+          <h3 class="subsection-title">Estimated Take-Home Paycheck</h3>
+          <div class="frequency-grid">
+            <div class="freq-box">
+              <span class="freq-label">Monthly</span>
+              <span id="pay-monthly" class="freq-value">$0</span>
+            </div>
+            <div class="freq-box">
+              <span class="freq-label">Bi-Weekly</span>
+              <span id="pay-biweekly" class="freq-value">$0</span>
+            </div>
+            <div class="freq-box">
+              <span class="freq-label">Weekly</span>
+              <span id="pay-weekly" class="freq-value">$0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deductions & Taxable Income summary row -->
+        <div class="summary-details">
+          <div class="detail-row">
+            <span>Gross Income:</span>
+            <strong id="summary-gross">$0</strong>
+          </div>
+          <div class="detail-row">
+            <span>Deduction Applied:</span>
+            <strong id="summary-deduction" class="text-green">-$0</strong>
+          </div>
+          <div class="detail-row highlight-row">
+            <span>Taxable Income:</span>
+            <strong id="summary-taxable">$0</strong>
+          </div>
+        </div>
+
+        <!-- Progressive Bracket Table -->
+        <div class="brackets-section">
+          <h3 class="subsection-title">Progressive Bracket Breakdown</h3>
+          <div class="table-wrapper">
+            <table class="brackets-table" id="brackets-table">
+              <thead>
+                <tr>
+                  <th>Tier & Rate</th>
+                  <th>Bracket Range</th>
+                  <th>Taxable in Tier</th>
+                  <th class="text-right">Tax Owed</th>
+                </tr>
+              </thead>
+              <tbody id="brackets-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Beginner-friendly educational Tax Calculator web application • Automated tests powered by Jasmine • Containerized with Docker & Nginx • Tekton CI/CD Pipeline Ready.</p>
+    </footer>
+  </main>
+
+  <!-- Load Calculator Engine then UI Script -->
+  <script src="taxCalculator.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
