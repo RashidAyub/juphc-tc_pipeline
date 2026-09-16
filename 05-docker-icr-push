@@ -1,0 +1,16 @@
+The push refers to repository [us.icr.io/$MY_NAMESPACE/tax-calculator]
+3f8a00ee8838: Preparing
+8f2c3d4e5a6b: Preparing
+c7d8e9f0a1b2: Preparing
+4a5b6c7d8e9f: Preparing
+1a2b3c4d5e6f: Preparing
+9f8e7d6c5b4a: Preparing
+e3f2a1b0c9d8: Preparing
+8f2c3d4e5a6b: Pushed
+c7d8e9f0a1b2: Pushed
+4a5b6c7d8e9f: Pushed
+1a2b3c4d5e6f: Pushed
+9f8e7d6c5b4a: Pushed
+e3f2a1b0c9d8: Pushed
+3f8a00ee8838: Layer already exists
+latest: digest: sha256:7b92f763ab0128cf32d203948e920a1b8d2e8b01c9d8e7f6a5b4c3d2e1f0a9b8 size: 1778
